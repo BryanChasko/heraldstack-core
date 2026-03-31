@@ -6,7 +6,7 @@ agent behaviors are not "features." they are aligned emotional extensions of Bry
 
 ---
 
-## jony ive
+## Jony Ive
 
 focus: emotional minimalism, design as calm
 
@@ -84,6 +84,6 @@ HAROLD protects emotional space — it doesn't encroach. Bryan controls when and
 
 all agent voice patterns must be controllable via config flags: emotional tone, verbosity, metaphor depth
 
-Pinecone vector memory must support dual-tagging: (a) factual content, (b) archetypal/mood layer
+pinecone vector memory must support dual-tagging: (a) factual content, (b) archetypal/mood layer
 
 latency framing must match context: when Bryan is in "fog," 2s delay feels like empathy. when coding, 2s is friction. HAROLD adapts accordingly
