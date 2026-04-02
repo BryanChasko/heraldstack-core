@@ -1,69 +1,226 @@
 <svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
-      @keyframes signal-wave {
-        0% { d: path('M 200 100 Q 220 80 240 100 T 280 100'); opacity: 0.3; }
-        50% { d: path('M 200 100 Q 220 70 240 100 T 280 100'); opacity: 0.8; }
-        100% { d: path('M 200 100 Q 220 80 240 100 T 280 100'); opacity: 0.3; }
+      @keyframes core-heartbeat {
+        0%, 100% { r: 6; filter: drop-shadow(0 0 4px #58a6ff); }
+        50% { r: 10; filter: drop-shadow(0 0 16px #58a6ff); }
       }
-      @keyframes antenna-pulse {
-        0% { stroke: #58a6ff; filter: drop-shadow(0 0 2px #58a6ff); }
-        50% { stroke: #58a6ff; filter: drop-shadow(0 0 8px #58a6ff); }
-        100% { stroke: #58a6ff; filter: drop-shadow(0 0 2px #58a6ff); }
+
+      @keyframes pulse-wave {
+        0% { r: 6; opacity: 0.8; stroke-width: 2; }
+        100% { r: 22; opacity: 0; stroke-width: 0.5; }
       }
-      @keyframes grid-fade {
-        0% { opacity: 0.05; }
+
+      @keyframes hex-rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @keyframes hex-rotate-reverse {
+        0% { transform: rotate(360deg); }
+        100% { transform: rotate(0deg); }
+      }
+
+      @keyframes data-particle-flow {
+        0% { transform: translateX(0) translateY(0); opacity: 0; }
+        50% { opacity: 1; }
+        100% { transform: translateX(var(--tx, 0)) translateY(var(--ty, 0)); opacity: 0; }
+      }
+
+      @keyframes node-glow-sequence {
+        0%, 100% { filter: drop-shadow(0 0 2px currentColor); fill-opacity: 0.5; }
+        50% { filter: drop-shadow(0 0 12px currentColor); fill-opacity: 0.95; }
+      }
+
+      @keyframes grid-breathe {
+        0%, 100% { opacity: 0.04; }
         50% { opacity: 0.12; }
-        100% { opacity: 0.05; }
       }
-      .grid { animation: grid-fade 4s ease-in-out infinite; }
-      .antenna { animation: antenna-pulse 2s ease-in-out infinite; }
-      .signal { animation: signal-wave 3s ease-in-out infinite; }
+
+      @keyframes connection-pulse {
+        0%, 100% { stroke-opacity: 0.3; stroke-width: 0.8; }
+        50% { stroke-opacity: 0.7; stroke-width: 1.2; }
+      }
+
+      @keyframes top-glow {
+        0% { stop-color: #58a6ff; stop-opacity: 0.15; }
+        50% { stop-color: #7ee787; stop-opacity: 0.35; }
+        100% { stop-color: #58a6ff; stop-opacity: 0.15; }
+      }
+
+      .core { animation: core-heartbeat 2s ease-in-out infinite; }
+      .pulse { animation: pulse-wave 2s ease-out infinite; }
+      .pulse-delay-1 { animation-delay: 0.3s; }
+      .pulse-delay-2 { animation-delay: 0.6s; }
+
+      .inner-ring { animation: hex-rotate 8s linear infinite; transform-origin: 400px 100px; }
+      .outer-ring { animation: hex-rotate-reverse 12s linear infinite; transform-origin: 400px 100px; }
+
+      .grid-pattern { animation: grid-breathe 4s ease-in-out infinite; }
+
+      .node-1 { animation: node-glow-sequence 4s ease-in-out infinite; color: #58a6ff; }
+      .node-2 { animation: node-glow-sequence 4s ease-in-out infinite; animation-delay: 0.8s; color: #7ee787; }
+      .node-3 { animation: node-glow-sequence 4s ease-in-out infinite; animation-delay: 1.6s; color: #d2a8ff; }
+      .node-4 { animation: node-glow-sequence 4s ease-in-out infinite; animation-delay: 2.4s; color: #58a6ff; }
+      .node-5 { animation: node-glow-sequence 4s ease-in-out infinite; animation-delay: 3.2s; color: #7ee787; }
+      .node-6 { animation: node-glow-sequence 4s ease-in-out infinite; animation-delay: 4s; color: #d2a8ff; }
+
+      .connection-1 { animation: connection-pulse 3s ease-in-out infinite; }
+      .connection-2 { animation: connection-pulse 3s ease-in-out infinite; animation-delay: 0.4s; }
+      .connection-3 { animation: connection-pulse 3s ease-in-out infinite; animation-delay: 0.8s; }
+      .connection-4 { animation: connection-pulse 3s ease-in-out infinite; animation-delay: 1.2s; }
+      .connection-5 { animation: connection-pulse 3s ease-in-out infinite; animation-delay: 1.6s; }
+      .connection-6 { animation: connection-pulse 3s ease-in-out infinite; animation-delay: 2s; }
+
+      .particle-1 { animation: data-particle-flow 3s ease-out infinite; --tx: 50px; --ty: -70px; }
+      .particle-2 { animation: data-particle-flow 3s ease-out infinite; animation-delay: 0.6s; --tx: -50px; --ty: -70px; }
+      .particle-3 { animation: data-particle-flow 3s ease-out infinite; animation-delay: 1.2s; --tx: 60px; --ty: 0; }
+      .particle-4 { animation: data-particle-flow 3s ease-out infinite; animation-delay: 1.8s; --tx: -60px; --ty: 0; }
+      .particle-5 { animation: data-particle-flow 3s ease-out infinite; animation-delay: 2.4s; --tx: 50px; --ty: 70px; }
+      .particle-6 { animation: data-particle-flow 3s ease-out infinite; animation-delay: 3s; --tx: -50px; --ty: 70px; }
     </style>
-    <pattern id="grid" patternUnits="userSpaceOnUse" width="40" height="40">
-      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#58a6ff" stroke-width="0.5"/>
-    </pattern>
+
+    <defs>
+      <pattern id="grid" patternUnits="userSpaceOnUse" width="30" height="30">
+        <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#58a6ff" stroke-width="0.4"/>
+      </pattern>
+
+      <radialGradient id="center-glow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" style="stop-color: #58a6ff; stop-opacity: 0.25;" />
+        <stop offset="100%" style="stop-color: #58a6ff; stop-opacity: 0;" />
+      </radialGradient>
+
+      <linearGradient id="sky-fade" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color: #1a3a4a; stop-opacity: 0.3;">
+          <animate attributeName="stop-color" values="#1a3a4a; #0d1117; #1a3a4a" dur="6s" repeatCount="indefinite" />
+        </stop>
+        <stop offset="100%" style="stop-color: #0d1117; stop-opacity: 0;" />
+      </linearGradient>
+
+      <filter id="node-glow">
+        <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
   </defs>
 
-  <!-- Dark background -->
+  <!-- dark background -->
   <rect width="800" height="200" fill="#0d1117"/>
+  <rect width="800" height="200" fill="url(#sky-fade)"/>
 
-  <!-- Grid pattern -->
-  <rect width="800" height="200" fill="url(#grid)" class="grid"/>
+  <!-- subtle grid pattern breathing -->
+  <rect width="800" height="200" fill="url(#grid)" class="grid-pattern" opacity="0.06"/>
 
-  <!-- Left antenna element -->
-  <g class="antenna">
-    <line x1="150" y1="160" x2="160" y2="60" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"/>
-    <line x1="160" y1="60" x2="150" y2="40" stroke="#58a6ff" stroke-width="1.5" stroke-linecap="round"/>
-    <line x1="160" y1="60" x2="170" y2="40" stroke="#58a6ff" stroke-width="1.5" stroke-linecap="round"/>
-    <circle cx="160" cy="60" r="3" fill="#58a6ff"/>
+  <!-- outer glow aura -->
+  <circle cx="400" cy="100" r="85" fill="url(#center-glow)"/>
+
+  <!-- inner rotating ring (hex outline) -->
+  <g class="inner-ring">
+    <polygon points="400,55 446,80 446,130 400,155 354,130 354,80" fill="none" stroke="#58a6ff" stroke-width="1.5" opacity="0.5"/>
   </g>
 
-  <!-- Signal waves emanating right -->
-  <g class="signal">
-    <path d="M 200 100 Q 220 75 240 100 T 280 100" fill="none" stroke="#58a6ff" stroke-width="1.5" opacity="0.6"/>
-    <path d="M 200 100 Q 220 85 240 100 T 280 100" fill="none" stroke="#58a6ff" stroke-width="1" opacity="0.4"/>
+  <!-- outer rotating ring (larger hex, reverse direction) -->
+  <g class="outer-ring">
+    <polygon points="400,35 470,70 470,140 400,175 330,140 330,70" fill="none" stroke="#7ee787" stroke-width="1" opacity="0.35"/>
   </g>
 
-  <!-- Center circuit element -->
-  <g opacity="0.8">
-    <rect x="350" y="70" width="100" height="60" fill="none" stroke="#58a6ff" stroke-width="1.5"/>
-    <circle cx="360" cy="80" r="2" fill="#58a6ff"/>
-    <circle cx="430" cy="115" r="2" fill="#58a6ff"/>
-    <line x1="360" y1="80" x2="430" y2="115" stroke="#58a6ff" stroke-width="1" opacity="0.6"/>
-    <path d="M 365 125 L 375 125 M 380 125 L 390 125" stroke="#58a6ff" stroke-width="1" opacity="0.5"/>
+  <!-- connection lines from center to 6 outer nodes -->
+  <line x1="400" y1="100" x2="400" y2="35" stroke="#58a6ff" stroke-width="1" class="connection-1" opacity="0.4"/>
+  <line x1="400" y1="100" x2="470" y2="70" stroke="#7ee787" stroke-width="1" class="connection-2" opacity="0.4"/>
+  <line x1="400" y1="100" x2="470" y2="140" stroke="#d2a8ff" stroke-width="1" class="connection-3" opacity="0.4"/>
+  <line x1="400" y1="100" x2="400" y2="175" stroke="#58a6ff" stroke-width="1" class="connection-4" opacity="0.4"/>
+  <line x1="400" y1="100" x2="330" y2="140" stroke="#7ee787" stroke-width="1" class="connection-5" opacity="0.4"/>
+  <line x1="400" y1="100" x2="330" y2="70" stroke="#d2a8ff" stroke-width="1" class="connection-6" opacity="0.4"/>
+
+  <!-- core (central pulsing hexagon) -->
+  <g>
+    <!-- core hexagon -->
+    <polygon points="400,85 415,92 415,106 400,113 385,106 385,92" fill="#58a6ff" opacity="0.4"/>
+    <polygon points="400,85 415,92 415,106 400,113 385,106 385,92" fill="none" stroke="#58a6ff" stroke-width="1.5" opacity="0.8"/>
+
+    <!-- central heartbeat sphere -->
+    <circle cx="400" cy="100" r="6" fill="#58a6ff" class="core" opacity="0.95"/>
+
+    <!-- pulse waves emanating from core -->
+    <circle cx="400" cy="100" r="6" fill="none" stroke="#58a6ff" class="pulse" opacity="0.6"/>
+    <circle cx="400" cy="100" r="6" fill="none" stroke="#7ee787" class="pulse pulse-delay-1" opacity="0.5"/>
+    <circle cx="400" cy="100" r="6" fill="none" stroke="#d2a8ff" class="pulse pulse-delay-2" opacity="0.4"/>
   </g>
 
-  <!-- Right antenna mirror -->
-  <g class="antenna">
-    <line x1="650" y1="160" x2="640" y2="60" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"/>
-    <line x1="640" y1="60" x2="650" y2="40" stroke="#58a6ff" stroke-width="1.5" stroke-linecap="round"/>
-    <line x1="640" y1="60" x2="630" y2="40" stroke="#58a6ff" stroke-width="1.5" stroke-linecap="round"/>
-    <circle cx="640" cy="60" r="3" fill="#58a6ff"/>
+  <!-- outer hexagonal nodes (6 positions) -->
+  <!-- top: infra -->
+  <g filter="url(#node-glow)" class="node-1">
+    <circle cx="400" cy="35" r="4" fill="#58a6ff" opacity="0.8"/>
+    <circle cx="400" cy="35" r="6" fill="none" stroke="#58a6ff" stroke-width="0.8" opacity="0.5"/>
+    <text x="400" y="20" font-family="monospace" font-size="9" text-anchor="middle" fill="#58a6ff" opacity="0.7">infra</text>
   </g>
 
-  <!-- Text: repo name -->
-  <text x="400" y="155" font-family="monospace" font-size="20" font-weight="bold" text-anchor="middle" fill="#58a6ff" opacity="0.9">
+  <!-- top-right: mcp -->
+  <g filter="url(#node-glow)" class="node-2">
+    <circle cx="470" cy="70" r="4" fill="#7ee787" opacity="0.8"/>
+    <circle cx="470" cy="70" r="6" fill="none" stroke="#7ee787" stroke-width="0.8" opacity="0.5"/>
+    <text x="495" y="75" font-family="monospace" font-size="9" text-anchor="middle" fill="#7ee787" opacity="0.7">mcp</text>
+  </g>
+
+  <!-- bottom-right: shannon -->
+  <g filter="url(#node-glow)" class="node-3">
+    <circle cx="470" cy="140" r="4" fill="#d2a8ff" opacity="0.8"/>
+    <circle cx="470" cy="140" r="6" fill="none" stroke="#d2a8ff" stroke-width="0.8" opacity="0.5"/>
+    <text x="495" y="145" font-family="monospace" font-size="9" text-anchor="middle" fill="#d2a8ff" opacity="0.7">shannon</text>
+  </g>
+
+  <!-- bottom: haunting -->
+  <g filter="url(#node-glow)" class="node-4">
+    <circle cx="400" cy="175" r="4" fill="#58a6ff" opacity="0.8"/>
+    <circle cx="400" cy="175" r="6" fill="none" stroke="#58a6ff" stroke-width="0.8" opacity="0.5"/>
+    <text x="400" y="192" font-family="monospace" font-size="9" text-anchor="middle" fill="#58a6ff" opacity="0.7">haunting</text>
+  </g>
+
+  <!-- bottom-left: gander -->
+  <g filter="url(#node-glow)" class="node-5">
+    <circle cx="330" cy="140" r="4" fill="#7ee787" opacity="0.8"/>
+    <circle cx="330" cy="140" r="6" fill="none" stroke="#7ee787" stroke-width="0.8" opacity="0.5"/>
+    <text x="305" y="145" font-family="monospace" font-size="9" text-anchor="middle" fill="#7ee787" opacity="0.7">gander</text>
+  </g>
+
+  <!-- top-left: ibeji -->
+  <g filter="url(#node-glow)" class="node-6">
+    <circle cx="330" cy="70" r="4" fill="#d2a8ff" opacity="0.8"/>
+    <circle cx="330" cy="70" r="6" fill="none" stroke="#d2a8ff" stroke-width="0.8" opacity="0.5"/>
+    <text x="305" y="75" font-family="monospace" font-size="9" text-anchor="middle" fill="#d2a8ff" opacity="0.7">ibeji</text>
+  </g>
+
+  <!-- data particles flowing along connections -->
+  <g class="particle-1">
+    <circle cx="400" cy="100" r="1.5" fill="#58a6ff" opacity="0.8"/>
+    <circle cx="400" cy="100" r="3" fill="#58a6ff" opacity="0.3"/>
+  </g>
+  <g class="particle-2">
+    <circle cx="400" cy="100" r="1.5" fill="#7ee787" opacity="0.75"/>
+    <circle cx="400" cy="100" r="3" fill="#7ee787" opacity="0.25"/>
+  </g>
+  <g class="particle-3">
+    <circle cx="400" cy="100" r="1.5" fill="#d2a8ff" opacity="0.7"/>
+    <circle cx="400" cy="100" r="3" fill="#d2a8ff" opacity="0.2"/>
+  </g>
+  <g class="particle-4">
+    <circle cx="400" cy="100" r="1.5" fill="#58a6ff" opacity="0.8"/>
+    <circle cx="400" cy="100" r="3" fill="#58a6ff" opacity="0.3"/>
+  </g>
+  <g class="particle-5">
+    <circle cx="400" cy="100" r="1.5" fill="#7ee787" opacity="0.75"/>
+    <circle cx="400" cy="100" r="3" fill="#7ee787" opacity="0.25"/>
+  </g>
+  <g class="particle-6">
+    <circle cx="400" cy="100" r="1.5" fill="#d2a8ff" opacity="0.7"/>
+    <circle cx="400" cy="100" r="3" fill="#d2a8ff" opacity="0.2"/>
+  </g>
+
+  <!-- text: heraldstack-core -->
+  <text x="400" y="190" font-family="monospace" font-size="16" font-weight="bold" text-anchor="middle" fill="#58a6ff" opacity="0.95" letter-spacing="1">
     heraldstack-core
   </text>
 </svg>
