@@ -15,7 +15,7 @@ steps:
   - name: fmt
     image: heraldstack/woodpecker-fc-plugin:0.1.0
     environment:
-      FC_POOL_BASE_URL: http://host.docker.internal:8150
+      FC_POOL_BASE_URL: http://172.17.0.1:8150
     settings:
       image: heraldstack-ci-rust
       cancel_key: pilot1-tier1-fmt
@@ -32,7 +32,7 @@ steps:
     image: heraldstack/woodpecker-fc-plugin:0.1.0
     depends_on: [fmt]
     environment:
-      FC_POOL_BASE_URL: http://host.docker.internal:8150
+      FC_POOL_BASE_URL: http://172.17.0.1:8150
     settings:
       image: heraldstack-ci-rust
       cancel_key: pilot1-tier1-clippy
@@ -50,7 +50,7 @@ steps:
     image: heraldstack/woodpecker-fc-plugin:0.1.0
     depends_on: [clippy]
     environment:
-      FC_POOL_BASE_URL: http://host.docker.internal:8150
+      FC_POOL_BASE_URL: http://172.17.0.1:8150
     settings:
       image: heraldstack-ci-rust
       cancel_key: pilot1-tier1-build
@@ -67,7 +67,7 @@ steps:
     image: heraldstack/woodpecker-fc-plugin:0.1.0
     depends_on: [build]
     environment:
-      FC_POOL_BASE_URL: http://host.docker.internal:8150
+      FC_POOL_BASE_URL: http://172.17.0.1:8150
     settings:
       image: heraldstack-ci-rust
       cancel_key: pilot1-tier1-test
