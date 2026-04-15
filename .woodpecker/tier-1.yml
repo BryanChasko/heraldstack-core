@@ -9,7 +9,7 @@
 # sprint-2: wire WOODPECKER_SECRET + registry auth — tracked in heraldstack-core issue
 
 when:
-  - event: [push, pull_request]
+  - event: [push, pull_request, manual]
 
 steps:
   - name: fmt
