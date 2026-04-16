@@ -62,7 +62,7 @@ fn check_ollama(config: &StatusConfig) -> Result<bool> {
             .unwrap_or(0.0);
         let mem_gb = mem_kb / 1024.0 / 1024.0;
 
-        log_success(&format!("Ollama service: RUNNING"));
+        log_success("Ollama service: RUNNING");
         println!("   Memory usage: {:.2} GB", mem_gb);
 
         // Check API connectivity

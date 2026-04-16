@@ -5,7 +5,7 @@
 
 use anyhow::Result;
 use clap::{Arg, Command};
-use harald::ingest::chunked_ingest::{ChunkedIngestConfig, process_file};
+use harald::ingest::chunked_ingest::{process_file, ChunkedIngestConfig};
 
 #[tokio::main]
 async fn main() -> Result<()> {
