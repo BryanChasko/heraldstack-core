@@ -6,6 +6,12 @@
 
 Ambient AI infrastructure for multi-platform agent collectives. Four CLI platforms (Claude Code, kiro, goose, Gemini) routed through herald agents, backed by unified knowledge backbone (qdrant vector store, valkey cache), full OpenTelemetry tracing, rust-first application logic.
 
+## ci pipeline
+
+heraldstack-core runs CI inside firecracker microVMs via woodpecker and fc-pool. full pipeline reference for contributors:
+
+- [`docs/ci/tier-1-pipeline.md`](docs/ci/tier-1-pipeline.md) — how to trigger runs, tier-1.yml anatomy, cache behavior, debugging failed steps, adding a new tier
+
 ## status
 
 public
