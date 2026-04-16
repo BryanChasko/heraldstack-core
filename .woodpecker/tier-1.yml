@@ -12,7 +12,7 @@ when:
 steps:
   - name: rust-check
     image: heraldstack/woodpecker-fc-plugin:0.1.0
-    pull: never
+    pull: false
     settings:
       image: heraldstack-ci-rust
       commands:
