@@ -3,7 +3,8 @@
 # single step: fmt + clippy + test inside a firecracker microvm
 # image: heraldstack/woodpecker-fc-plugin:0.1.0 (rocm-local, pull: never)
 # rootfs: heraldstack-ci-rust (allowlisted in fc-pool CI_ALLOWED_IMAGES)
-# secrets: ci_cancel_key, fc_pool_ci_token — set via woodpecker repo secrets UI
+# secrets: ci_cancel_key — set via woodpecker user secrets UI
+# fc-pool runs open on :8150 — no FC_POOL_CI_TOKEN env needed
 # cargo audit deferred to tier-2
 
 when:
@@ -25,7 +26,3 @@ steps:
       tier: 1
       env:
         RUST_LOG: info
-    environment:
-      FC_POOL_BASE_URL: http://host.docker.internal:8150
-      FC_POOL_CI_TOKEN:
-        from_secret: fc_pool_ci_token
