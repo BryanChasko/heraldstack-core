@@ -7,7 +7,7 @@
 # cargo audit deferred to tier-2
 
 when:
-  - event: [push, pull_request]
+  - event: [push, pull_request, manual]
 
 steps:
   - name: rust-check
