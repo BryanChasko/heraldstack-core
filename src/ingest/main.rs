@@ -11,7 +11,7 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 
 // Use the proper module structure from lib.rs
-use harald::ingest::{ingest, query, QueryConfig};
+use harald::ingest::{query, runner, QueryConfig};
 
 /// Command-line interface for HARALD semantic search system.
 ///
@@ -101,7 +101,7 @@ async fn main() -> Result<()> {
             max_concurrent,
         } => {
             // Create ingest configuration
-            let mut config = ingest::IngestConfig::default();
+            let mut config = runner::IngestConfig::default();
 
             if let Some(root_dir) = root {
                 config.root_dir = root_dir;
@@ -111,7 +111,7 @@ async fn main() -> Result<()> {
             config.max_concurrent_files = max_concurrent;
 
             // Run ingestion process
-            let stats = ingest::run_with_config(config).await?;
+            let stats = runner::run_with_config(config).await?;
 
             // Display results
             println!(
