@@ -1,87 +1,31 @@
 ---
-# tier-1.yml — firecracker-native ci via woodpecker-fc-plugin
-# sprint-1 pilot: unauthenticated — no woodpecker secret injection,
-# no registry auth
-# all steps execute inside firecracker microvms, not docker containers
-# plugin image: heraldstack/woodpecker-fc-plugin:0.1.0
-#   built locally on rocm agent host — no registry push,
-#   woodpecker pull policy: if-not-present
-# rootfs: heraldstack-ci-rust (only rust rootfs allowlisted in fc-pool policy)
-# cancel_key: static pilot1-tier1-<step> pattern — replace with
-#   dynamic workflow_id in v2
-# tracking: heraldstack-firecracker woodpecker-fc-plugin integration
-#   (cancel_key TBD in plugin issue)
-# sprint-2: wire WOODPECKER_SECRET + registry auth — tracked in
-#   heraldstack-core issue
+# tier-1.yml — pilot-1 fc-pool ci via woodpecker-fc-plugin
+# single step: fmt + clippy + test inside a firecracker microvm
+# image: heraldstack/woodpecker-fc-plugin:0.1.0 (rocm-local, pull: never)
+# rootfs: heraldstack-ci-rust (allowlisted in fc-pool CI_ALLOWED_IMAGES)
+# secrets: ci_cancel_key, fc_pool_ci_token — set via woodpecker repo secrets UI
+# cargo audit deferred to tier-2
 
 when:
-  - event: [push, pull_request, manual]
+  - event: [push, pull_request]
 
 steps:
-  - name: fmt
+  - name: rust-check
     image: heraldstack/woodpecker-fc-plugin:0.1.0
-    environment:
-      FC_POOL_BASE_URL: http://172.17.0.1:8150
+    pull: never
     settings:
       image: heraldstack-ci-rust
-      cancel_key: pilot1-tier1-fmt
-      tier: 1
-      time_budget_secs: 900
-      cache_mounts_ro:
-        - /srv/ci-cache/cargo
-      env:
-        CARGO_HOME: /ci-cache/cargo
       commands:
-        - cargo fmt --all --check
-
-  - name: clippy
-    image: heraldstack/woodpecker-fc-plugin:0.1.0
-    depends_on: [fmt]
+        - cargo fmt --check --all
+        - cargo clippy --workspace --all-targets -- -D warnings
+        - cargo test --workspace
+      cancel_key:
+        from_secret: ci_cancel_key
+      time_budget_secs: 600
+      tier: 1
+      env:
+        RUST_LOG: info
     environment:
-      FC_POOL_BASE_URL: http://172.17.0.1:8150
-    settings:
-      image: heraldstack-ci-rust
-      cancel_key: pilot1-tier1-clippy
-      tier: 1
-      time_budget_secs: 900
-      cache_mounts_ro:
-        - /srv/ci-cache/cargo
-      env:
-        CARGO_HOME: /ci-cache/cargo
-      commands:
-        - rustup component add clippy
-        - cargo clippy --workspace --all-targets --all-features -- -D warnings
-
-  - name: build
-    image: heraldstack/woodpecker-fc-plugin:0.1.0
-    depends_on: [clippy]
-    environment:
-      FC_POOL_BASE_URL: http://172.17.0.1:8150
-    settings:
-      image: heraldstack-ci-rust
-      cancel_key: pilot1-tier1-build
-      tier: 1
-      time_budget_secs: 1800
-      cache_mounts_ro:
-        - /srv/ci-cache/cargo
-      env:
-        CARGO_HOME: /ci-cache/cargo
-      commands:
-        - cargo build --workspace --release
-
-  - name: test
-    image: heraldstack/woodpecker-fc-plugin:0.1.0
-    depends_on: [build]
-    environment:
-      FC_POOL_BASE_URL: http://172.17.0.1:8150
-    settings:
-      image: heraldstack-ci-rust
-      cancel_key: pilot1-tier1-test
-      tier: 1
-      time_budget_secs: 900
-      cache_mounts_ro:
-        - /srv/ci-cache/cargo
-      env:
-        CARGO_HOME: /ci-cache/cargo
-      commands:
-        - cargo test --workspace --all-features
+      FC_POOL_BASE_URL: http://host.docker.internal:8150
+      FC_POOL_CI_TOKEN:
+        from_secret: fc_pool_ci_token
