@@ -10,9 +10,6 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
-// Allow dead code for utility functions that are only used in CLI mode
-#[allow(dead_code)]
-
 /// Configuration for validation
 #[derive(Debug)]
 #[allow(dead_code)]
@@ -322,19 +319,18 @@ fn validate_json_file_names(config: &ValidatorConfig) -> Result<Vec<NamingIssue>
                 });
             }
         // Schema files should use kebab-case
-        } else if path_str.contains("/data/schemas/")
+        } else if (path_str.contains("/data/schemas/")
             || path_str.contains("/data/vector")
             || path_str.ends_with("-config.json")
-            || path_str.contains("/config/schemas/")
+            || path_str.contains("/config/schemas/"))
+            && filename.contains('_')
         {
-            if filename.contains('_') {
-                let new_name = filename.replace('_', "-");
-                issues.push(NamingIssue {
-                    path: entry.path().to_path_buf(),
-                    issue_type: "Schema/config JSON file should use kebab-case".to_string(),
-                    suggested_fix: format!("{}.json", new_name),
-                });
-            }
+            let new_name = filename.replace('_', "-");
+            issues.push(NamingIssue {
+                path: entry.path().to_path_buf(),
+                issue_type: "Schema/config JSON file should use kebab-case".to_string(),
+                suggested_fix: format!("{}.json", new_name),
+            });
         }
     }
 

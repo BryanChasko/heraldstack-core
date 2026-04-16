@@ -116,7 +116,6 @@ struct EmbedResponse {
 ///     Ok(())
 /// }
 /// ```
-
 /// Converts text to an embedding vector with custom configuration.
 ///
 /// # Arguments

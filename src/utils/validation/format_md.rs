@@ -20,7 +20,7 @@ fn format_markdown_files(config: &FormatterConfig) -> Result<bool> {
     println!("Formatting Markdown files in {}", config.target_path);
 
     if config.verbose {
-        println!("{} {}", "[INFO]".blue().bold(), "Finding Markdown files...");
+        println!("{} Finding Markdown files...", "[INFO]".blue().bold());
     }
 
     // Find all .md files, excluding node_modules and target directories
@@ -40,15 +40,15 @@ fn format_markdown_files(config: &FormatterConfig) -> Result<bool> {
     }
 
     if md_files.is_empty() {
-        println!("{} {}", "[INFO]".blue().bold(), "No Markdown files found.");
+        println!("{} No Markdown files found.", "[INFO]".blue().bold());
         return Ok(true);
     }
 
     if config.verbose {
         println!(
-            "{} {}",
+            "{} Found {} Markdown files",
             "[INFO]".blue().bold(),
-            format!("Found {} Markdown files", md_files.len())
+            md_files.len()
         );
     }
 
@@ -75,7 +75,7 @@ fn format_markdown_files(config: &FormatterConfig) -> Result<bool> {
 
     // Run prettier
     if config.verbose {
-        println!("{} {}", "[INFO]".blue().bold(), "Running prettier...");
+        println!("{} Running prettier...", "[INFO]".blue().bold());
     }
 
     let output = ProcessCommand::new("prettier")
@@ -88,33 +88,29 @@ fn format_markdown_files(config: &FormatterConfig) -> Result<bool> {
     if success {
         if !config.check_only {
             println!(
-                "{} {}",
-                "[SUCCESS]".green().bold(),
-                "Markdown formatting complete!"
+                "{} Markdown formatting complete!",
+                "[SUCCESS]".green().bold()
             );
         } else {
             println!(
-                "{} {}",
-                "[SUCCESS]".green().bold(),
-                "Markdown files check passed!"
+                "{} Markdown files check passed!",
+                "[SUCCESS]".green().bold()
             );
         }
     } else {
         let stderr = String::from_utf8_lossy(&output.stderr);
         if config.check_only {
             println!(
-                "{} {}",
-                "[WARNING]".yellow().bold(),
-                "Some Markdown files need formatting."
+                "{} Some Markdown files need formatting.",
+                "[WARNING]".yellow().bold()
             );
             if config.verbose {
                 println!("{}", stderr);
             }
         } else {
             println!(
-                "{} {}",
-                "[ERROR]".red().bold(),
-                "Failed to format Markdown files."
+                "{} Failed to format Markdown files.",
+                "[ERROR]".red().bold()
             );
             println!("{}", stderr);
         }

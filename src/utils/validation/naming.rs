@@ -1,5 +1,5 @@
 //! Naming convention validation utilities
-//! 
+//!
 //! This module provides functions for validating file and directory names
 //! against HARALD project naming conventions. It can be used both as a
 //! library (by other modules) and via the CLI binary.
@@ -90,14 +90,16 @@ pub fn validate_directory_names(config: &ValidationConfig) -> Result<Vec<NamingI
     for entry in WalkDir::new(&config.target_path)
         .follow_links(true)
         .into_iter()
-        .filter_entry(|e| !excluded.iter().any(|x| e.file_name().to_string_lossy().contains(x)))
+        .filter_entry(|e| {
+            !excluded
+                .iter()
+                .any(|x| e.file_name().to_string_lossy().contains(x))
+        })
         .filter_map(|e| e.ok())
         .filter(|e| e.file_type().is_dir())
     {
         let path = entry.path();
-        let dir_name = path.file_name()
-            .and_then(|n| n.to_str())
-            .unwrap_or("");
+        let dir_name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
 
         // Skip root directory
         if path == config.target_path {
@@ -127,12 +129,10 @@ pub fn validate_rust_file_names(config: &ValidationConfig) -> Result<Vec<NamingI
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| e.file_type().is_file())
-        .filter(|e| e.path().extension().map_or(false, |ext| ext == "rs"))
+        .filter(|e| e.path().extension().is_some_and(|ext| ext == "rs"))
     {
         let path = entry.path();
-        let file_stem = path.file_stem()
-            .and_then(|n| n.to_str())
-            .unwrap_or("");
+        let file_stem = path.file_stem().and_then(|n| n.to_str()).unwrap_or("");
 
         // Skip special Rust files
         if ["main", "lib", "mod"].contains(&file_stem) {
@@ -161,12 +161,10 @@ pub fn validate_markdown_file_names(config: &ValidationConfig) -> Result<Vec<Nam
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| e.file_type().is_file())
-        .filter(|e| e.path().extension().map_or(false, |ext| ext == "md"))
+        .filter(|e| e.path().extension().is_some_and(|ext| ext == "md"))
     {
         let path = entry.path();
-        let file_stem = path.file_stem()
-            .and_then(|n| n.to_str())
-            .unwrap_or("");
+        let file_stem = path.file_stem().and_then(|n| n.to_str()).unwrap_or("");
 
         // Check naming convention based on context
         let expected_case = if is_entity_file(path) {
@@ -179,7 +177,9 @@ pub fn validate_markdown_file_names(config: &ValidationConfig) -> Result<Vec<Nam
 
         let is_valid = match expected_case {
             "TitleCase" => is_valid_title_case(file_stem),
-            "UPPERCASE" => file_stem.chars().all(|c| c.is_uppercase() || c == '-' || c == '_'),
+            "UPPERCASE" => file_stem
+                .chars()
+                .all(|c| c.is_uppercase() || c == '-' || c == '_'),
             "kebab-case" => is_valid_kebab_case(file_stem),
             _ => false,
         };
@@ -213,12 +213,10 @@ pub fn validate_json_file_names(config: &ValidationConfig) -> Result<Vec<NamingI
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| e.file_type().is_file())
-        .filter(|e| e.path().extension().map_or(false, |ext| ext == "json"))
+        .filter(|e| e.path().extension().is_some_and(|ext| ext == "json"))
     {
         let path = entry.path();
-        let file_stem = path.file_stem()
-            .and_then(|n| n.to_str())
-            .unwrap_or("");
+        let file_stem = path.file_stem().and_then(|n| n.to_str()).unwrap_or("");
 
         let expected_case = if is_entity_or_archetype_file(path) {
             "TitleCase"
@@ -259,15 +257,20 @@ pub fn validate_json_file_names(config: &ValidationConfig) -> Result<Vec<NamingI
 // Helper functions for case validation and conversion
 
 fn is_valid_kebab_case(s: &str) -> bool {
-    !s.is_empty() && s.chars().all(|c| c.is_lowercase() || c.is_numeric() || c == '-')
+    !s.is_empty()
+        && s.chars()
+            .all(|c| c.is_lowercase() || c.is_numeric() || c == '-')
 }
 
 fn is_valid_snake_case(s: &str) -> bool {
-    !s.is_empty() && s.chars().all(|c| c.is_lowercase() || c.is_numeric() || c == '_')
+    !s.is_empty()
+        && s.chars()
+            .all(|c| c.is_lowercase() || c.is_numeric() || c == '_')
 }
 
 fn is_valid_title_case(s: &str) -> bool {
-    !s.is_empty() && s.chars().next().unwrap().is_uppercase() 
+    !s.is_empty()
+        && s.chars().next().unwrap().is_uppercase()
         && s.chars().skip(1).all(|c| c.is_alphanumeric())
 }
 
@@ -296,7 +299,7 @@ fn to_snake_case(s: &str) -> String {
 fn to_title_case(s: &str) -> String {
     let mut result = String::new();
     let mut capitalize_next = true;
-    
+
     for c in s.chars() {
         if c.is_alphabetic() {
             if capitalize_next {
@@ -310,7 +313,7 @@ fn to_title_case(s: &str) -> String {
         }
         // Skip non-alphanumeric characters
     }
-    
+
     result
 }
 
@@ -320,7 +323,7 @@ fn is_special_directory(name: &str) -> bool {
 
 fn is_entity_file(path: &Path) -> bool {
     path.ancestors()
-        .any(|p| p.file_name().map_or(false, |n| n == "ai-entities"))
+        .any(|p| p.file_name().is_some_and(|n| n == "ai-entities"))
 }
 
 fn is_standard_doc(name: &str) -> bool {
@@ -329,25 +332,25 @@ fn is_standard_doc(name: &str) -> bool {
 
 fn is_entity_or_archetype_file(path: &Path) -> bool {
     path.ancestors().any(|p| {
-        p.file_name().map_or(false, |n| 
-            n == "ai-entities" || n == "personality-archetypes"
-        )
+        p.file_name()
+            .is_some_and(|n| n == "ai-entities" || n == "personality-archetypes")
     })
 }
 
 fn is_config_file(path: &Path) -> bool {
     path.ancestors()
-        .any(|p| p.file_name().map_or(false, |n| n == "config"))
+        .any(|p| p.file_name().is_some_and(|n| n == "config"))
 }
 
 fn apply_fix(issue: &NamingIssue) -> Result<()> {
     let old_path = &issue.path;
-    let new_path = old_path.with_file_name(&issue.suggested_name)
+    let new_path = old_path
+        .with_file_name(&issue.suggested_name)
         .with_extension(old_path.extension().unwrap_or_default());
-    
+
     std::fs::rename(old_path, &new_path)
         .with_context(|| format!("Failed to rename {:?} to {:?}", old_path, new_path))?;
-    
+
     Ok(())
 }
 
@@ -359,10 +362,10 @@ mod tests {
     fn test_case_validation() {
         assert!(is_valid_kebab_case("hello-world"));
         assert!(!is_valid_kebab_case("HelloWorld"));
-        
+
         assert!(is_valid_snake_case("hello_world"));
         assert!(!is_valid_snake_case("hello-world"));
-        
+
         assert!(is_valid_title_case("HelloWorld"));
         assert!(!is_valid_title_case("hello-world"));
     }

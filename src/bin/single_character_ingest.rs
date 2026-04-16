@@ -21,9 +21,9 @@ fn main() {
     println!("❌ Single character ingest CLI is currently being refactored.");
     println!("   This tool is temporarily disabled during the separation of concerns migration.");
     println!("   Use the library function directly or wait for the refactoring to complete.");
-    
+
     let args = Args::parse();
     println!("   Input file specified: {}", args.input.display());
-    
+
     std::process::exit(1);
 }

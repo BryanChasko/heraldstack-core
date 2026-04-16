@@ -1,7 +1,6 @@
 // chunking_utils.rs
 // Shared utilities for text chunking in ingestion pipelines
 
-
 /// Chunk a text field for embedding, using character-based chunking if needed.
 /// Returns a Vec of chunk strings, each <= max_len chars.
 pub fn chunk_field(text: &str, max_len: usize) -> Vec<String> {
@@ -22,7 +21,11 @@ pub fn chunk_field(text: &str, max_len: usize) -> Vec<String> {
         vec![text.to_string()]
     };
     // Debug print: chunk count and sizes
-    println!("[chunk_field] {} chars input, {} chunks:", text_len, chunks.len());
+    println!(
+        "[chunk_field] {} chars input, {} chunks:",
+        text_len,
+        chunks.len()
+    );
     for (i, chunk) in chunks.iter().enumerate() {
         println!("  Chunk {}: {} chars", i + 1, chunk.chars().count());
     }

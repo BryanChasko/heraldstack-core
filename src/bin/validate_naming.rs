@@ -1,5 +1,5 @@
 //! CLI binary for validating naming conventions
-//! 
+//!
 //! This binary provides a command-line interface for the naming validation
 //! functionality. It uses the library functions from the validation module.
 
@@ -10,7 +10,7 @@ use std::path::PathBuf;
 
 // Import the library functions
 use harald::utils::validation::naming::{
-    validate_naming_conventions, ValidationConfig, ValidationResult, NamingIssue
+    validate_naming_conventions, NamingIssue, ValidationConfig, ValidationResult,
 };
 
 fn main() -> Result<()> {
@@ -73,7 +73,10 @@ fn display_results(result: &ValidationResult, config: &ValidationConfig) {
         return;
     }
 
-    log_warning(&format!("Found {} naming convention issues:", result.issues.len()));
+    log_warning(&format!(
+        "Found {} naming convention issues:",
+        result.issues.len()
+    ));
     println!();
 
     for issue in &result.issues {
@@ -94,28 +97,20 @@ fn display_issue(issue: &NamingIssue, verbose: bool) {
         harald::utils::validation::naming::IssueType::JsonFileNaming => "JSON File",
     };
 
-    println!("  {} {}", 
+    println!(
+        "  {} {}",
         format!("[{}]", issue_type).cyan().bold(),
         issue.path.display()
     );
-    
-    println!("    {}: {}", 
-        "Current".red(), 
-        issue.current_name
-    );
-    
-    println!("    {}: {}", 
-        "Suggested".green(), 
-        issue.suggested_name
-    );
+
+    println!("    {}: {}", "Current".red(), issue.current_name);
+
+    println!("    {}: {}", "Suggested".green(), issue.suggested_name);
 
     if verbose {
-        println!("    {}: {}", 
-            "Reason".yellow(), 
-            issue.description
-        );
+        println!("    {}: {}", "Reason".yellow(), issue.description);
     }
-    
+
     println!();
 }
 

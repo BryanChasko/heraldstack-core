@@ -275,7 +275,7 @@ async fn process_directory_tree(
                     metadata.push((file_id, path_clone, embedding));
 
                     // Show progress periodically
-                    if count % PROGRESS_INTERVAL == 0 {
+                    if count.is_multiple_of(PROGRESS_INTERVAL) {
                         println!("Processed {count} files…");
                     }
 
