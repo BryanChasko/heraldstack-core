@@ -1,12 +1,18 @@
+---
 # tier-1.yml — firecracker-native ci via woodpecker-fc-plugin
-# sprint-1 pilot: unauthenticated — no woodpecker secret injection, no registry auth
+# sprint-1 pilot: unauthenticated — no woodpecker secret injection,
+# no registry auth
 # all steps execute inside firecracker microvms, not docker containers
 # plugin image: heraldstack/woodpecker-fc-plugin:0.1.0
-#   built locally on rocm agent host — no registry push, woodpecker pull policy: if-not-present
+#   built locally on rocm agent host — no registry push,
+#   woodpecker pull policy: if-not-present
 # rootfs: heraldstack-ci-rust (only rust rootfs allowlisted in fc-pool policy)
-# cancel_key: static pilot1-tier1-<step> pattern — replace with dynamic workflow_id in v2
-# tracking: heraldstack-firecracker woodpecker-fc-plugin integration (cancel_key TBD in plugin issue)
-# sprint-2: wire WOODPECKER_SECRET + registry auth — tracked in heraldstack-core issue
+# cancel_key: static pilot1-tier1-<step> pattern — replace with
+#   dynamic workflow_id in v2
+# tracking: heraldstack-firecracker woodpecker-fc-plugin integration
+#   (cancel_key TBD in plugin issue)
+# sprint-2: wire WOODPECKER_SECRET + registry auth — tracked in
+#   heraldstack-core issue
 
 when:
   - event: [push, pull_request, manual]
