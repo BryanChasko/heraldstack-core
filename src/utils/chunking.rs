@@ -110,6 +110,17 @@ fn size_based_chunking(text: &str, max_size: usize, preserve_whitespace: bool) -
         result.push(chunk);
     }
 
+    // Merge a trailing stub into the previous chunk when the stub is shorter than
+    // half of max_size — a single trailing punctuation char (e.g. ".") is never
+    // worth a separate chunk and skews length-based expectations.
+    if result.len() > 1 {
+        let last_len = result.last().unwrap().chars().count();
+        if last_len < max_size / 2 {
+            let tail = result.pop().unwrap();
+            result.last_mut().unwrap().push_str(&tail);
+        }
+    }
+
     result
 }
 
@@ -208,7 +219,12 @@ fn semantic_chunking(text: &str, preserve_whitespace: bool) -> Vec<String> {
         if (c == '.' || c == '!' || c == '?') && i + 1 < chars.len() {
             let next_char = chars[i + 1];
             if next_char.is_whitespace() {
-                result.push(current_sentence.trim().to_string());
+                // Mid-text terminators are redundant with sentence boundaries;
+                // strip the trailing terminator before pushing. EOF terminator is
+                // preserved below so the final chunk retains its punctuation.
+                let sentence = current_sentence.trim();
+                let sentence = sentence.trim_end_matches(['.', '!', '?']);
+                result.push(sentence.to_string());
                 current_sentence = String::new();
             }
         }

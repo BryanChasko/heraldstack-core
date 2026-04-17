@@ -275,10 +275,24 @@ fn is_valid_title_case(s: &str) -> bool {
 }
 
 fn to_kebab_case(s: &str) -> String {
-    s.to_lowercase()
-        .chars()
-        .map(|c| if c.is_alphanumeric() { c } else { '-' })
-        .collect::<String>()
+    // Insert '-' before an uppercase letter that follows a lowercase letter or digit
+    // (handles PascalCase/camelCase), then map remaining non-alphanumeric chars to '-'.
+    let mut expanded = String::with_capacity(s.len() + 8);
+    let chars: Vec<char> = s.chars().collect();
+    for (i, &c) in chars.iter().enumerate() {
+        if c.is_uppercase() && i > 0 {
+            let prev = chars[i - 1];
+            if prev.is_lowercase() || prev.is_ascii_digit() {
+                expanded.push('-');
+            }
+        }
+        if c.is_alphanumeric() {
+            expanded.push(c.to_lowercase().next().unwrap());
+        } else {
+            expanded.push('-');
+        }
+    }
+    expanded
         .split('-')
         .filter(|s| !s.is_empty())
         .collect::<Vec<_>>()
@@ -286,10 +300,24 @@ fn to_kebab_case(s: &str) -> String {
 }
 
 fn to_snake_case(s: &str) -> String {
-    s.to_lowercase()
-        .chars()
-        .map(|c| if c.is_alphanumeric() { c } else { '_' })
-        .collect::<String>()
+    // Insert '_' before an uppercase letter that follows a lowercase letter or digit
+    // (handles PascalCase/camelCase), then map remaining non-alphanumeric chars to '_'.
+    let mut expanded = String::with_capacity(s.len() + 8);
+    let chars: Vec<char> = s.chars().collect();
+    for (i, &c) in chars.iter().enumerate() {
+        if c.is_uppercase() && i > 0 {
+            let prev = chars[i - 1];
+            if prev.is_lowercase() || prev.is_ascii_digit() {
+                expanded.push('_');
+            }
+        }
+        if c.is_alphanumeric() {
+            expanded.push(c.to_lowercase().next().unwrap());
+        } else {
+            expanded.push('_');
+        }
+    }
+    expanded
         .split('_')
         .filter(|s| !s.is_empty())
         .collect::<Vec<_>>()
@@ -310,8 +338,11 @@ fn to_title_case(s: &str) -> String {
             }
         } else if c.is_numeric() {
             result.push(c);
+        } else {
+            // Non-alphanumeric separator (e.g. '-', '_') signals a word boundary;
+            // capitalize the next letter and skip the separator itself.
+            capitalize_next = true;
         }
-        // Skip non-alphanumeric characters
     }
 
     result
