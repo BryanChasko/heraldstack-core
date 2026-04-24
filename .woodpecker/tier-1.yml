@@ -1,28 +1,45 @@
 ---
-# tier-1.yml — pilot-1 fc-pool ci via woodpecker-fc-plugin
-# single step: fmt + clippy + test inside a firecracker microvm
-# image: heraldstack/woodpecker-fc-plugin:0.1.0 (rocm-local, pull: never)
-# rootfs: heraldstack-ci-rust (allowlisted in fc-pool CI_ALLOWED_IMAGES)
-# secrets: ci_cancel_key — set via woodpecker user secrets UI
-# fc-pool runs open on :8150 — no FC_POOL_CI_TOKEN env needed
-# cargo audit deferred to tier-2
+# tier-1.yml — rust fmt + clippy + test
+#
+# replaced fc-plugin approach: the woodpecker-fc-plugin SSE stream
+# hard-times-out at 30s (confirmed exit_code=3, "operation timed out")
+# while the microvm is still running. root cause is a missing keepalive
+# on the fc-pool SSE endpoint — not a code bug. fix: use standard
+# rust:1-slim steps directly on the woodpecker agent instead.
+#
+# workspace root is the repo root (Cargo.toml references src/ member).
+# all cargo commands run from root so workspace resolver applies.
+# image: rust:1.87-slim (glibc-based, required for aws_signing_helper
+# compat — not relevant here but enforced per template rule #2).
 
 when:
-  - event: [push, pull_request, manual]
+  - event: [pull_request, push, manual]
+    branch: main
+    path:
+      include:
+        - Cargo.toml
+        - Cargo.lock
+        - src/**
+        - tests/**
+        - .woodpecker/**
 
 steps:
-  - name: rust-check
-    image: heraldstack/woodpecker-fc-plugin:0.1.0
-    pull: false
-    # fc-plugin SSE stream drops at 30s (infra keepalive issue, not a code bug)
-    # failure:ignore unblocks the pipeline until fc-pool SSE keepalive is tuned
-    failure: ignore
-    settings:
-      image: heraldstack-ci-rust
-      commands: '["cargo fmt --check --all","cargo clippy --workspace --all-targets -- -D warnings","cargo test --workspace"]'
-      cancel_key:
-        from_secret: ci_cancel_key
-      time_budget_secs: 1200
-      tier: 1
-      env:
-        RUST_LOG: info
+  - name: fmt
+    image: rust:1.87-slim
+    commands:
+      - rustup component add rustfmt
+      - cargo fmt --all -- --check
+
+  - name: clippy
+    image: rust:1.87-slim
+    commands:
+      - apt-get update -qq && apt-get install -y -qq --no-install-recommends ca-certificates pkg-config libssl-dev git >/dev/null
+      - rustup component add clippy
+      - cargo clippy --all-targets -- -D warnings
+
+  - name: test
+    image: rust:1.87-slim
+    depends_on: [clippy]
+    commands:
+      - apt-get update -qq && apt-get install -y -qq --no-install-recommends ca-certificates pkg-config libssl-dev git >/dev/null
+      - cargo test --locked --no-fail-fast
