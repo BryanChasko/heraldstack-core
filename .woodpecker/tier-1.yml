@@ -1,5 +1,5 @@
 ---
-# tier-1.yml — rust fmt + clippy + test
+# tier-1.yml — tier-0 governance gates + rust fmt + clippy + test + audit
 #
 # replaced fc-plugin approach: the woodpecker-fc-plugin SSE stream
 # hard-times-out at 30s (confirmed exit_code=3, "operation timed out")
@@ -11,6 +11,11 @@
 # all cargo commands run from root so workspace resolver applies.
 # image: rust:1.87-slim (glibc-based, required for aws_signing_helper
 # compat — not relevant here but enforced per template rule #2).
+#
+# tier-0 gates use alpine:3.21 — no rust toolchain needed, fast boot.
+# draft-gate and skip-ci-gate halt the pipeline immediately; metadata
+# step surfaces branch/sha/author/event for log traceability.
+# audit step is failure: warn — advisory only, does not block merge.
 
 when:
   - event: [pull_request, push, manual]
@@ -24,14 +29,53 @@ when:
         - .woodpecker/**
 
 steps:
+  - name: tier-0-draft-gate
+    image: alpine:3.21
+    commands:
+      - |
+        if [ "${CI_COMMIT_PULL_REQUEST_DRAFT}" = "true" ]; then
+          echo "draft pr — halting"
+          exit 1
+        fi
+    failure: fail
+    when:
+      - event: [pull_request, push, manual]
+
+  - name: tier-0-skip-ci-gate
+    image: alpine:3.21
+    commands:
+      - |
+        if echo "${CI_COMMIT_MESSAGE}" | grep -qi '\[skip ci\]\|\[ci skip\]'; then
+          echo "[skip ci] detected — halting"
+          exit 1
+        fi
+    failure: fail
+    depends_on: [tier-0-draft-gate]
+    when:
+      - event: [pull_request, push, manual]
+
+  - name: tier-0-metadata
+    image: alpine:3.21
+    commands:
+      - |
+        echo "branch: ${CI_COMMIT_BRANCH}"
+        echo "commit: ${CI_COMMIT_SHA:0:8}"
+        echo "author: ${CI_COMMIT_AUTHOR}"
+        echo "event: ${CI_PIPELINE_EVENT}"
+    depends_on: [tier-0-skip-ci-gate]
+    when:
+      - event: [pull_request, push, manual]
+
   - name: fmt
     image: rust:1.87-slim
+    depends_on: [tier-0-metadata]
     commands:
       - rustup component add rustfmt
       - cargo fmt --all -- --check
 
   - name: clippy
     image: rust:1.87-slim
+    depends_on: [fmt]
     commands:
       - apt-get update -qq && apt-get install -y -qq --no-install-recommends ca-certificates pkg-config libssl-dev git >/dev/null
       - rustup component add clippy
@@ -43,3 +87,12 @@ steps:
     commands:
       - apt-get update -qq && apt-get install -y -qq --no-install-recommends ca-certificates pkg-config libssl-dev git >/dev/null
       - cargo test --locked --no-fail-fast
+
+  - name: audit
+    image: rust:1.87-slim
+    depends_on: [test]
+    failure: warn
+    commands:
+      - apt-get update -qq && apt-get install -y -qq --no-install-recommends ca-certificates pkg-config libssl-dev git >/dev/null
+      - cargo install cargo-audit --locked -q
+      - cargo audit
