@@ -3,7 +3,7 @@
 //! Library module for single character ingestion functionality.
 //! CLI has been moved to src/bin/single_character_ingest.rs
 
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 // Re-export commonly used types for the API
 pub use crate::ingest::chunking_utils::chunk_entity_fields;
@@ -97,6 +97,7 @@ pub fn validate_character_entry(character: &serde_json::Value) -> Result<(), Str
 mod tests {
     use super::*;
     use serde_json::json;
+    use std::path::PathBuf;
 
     #[test]
     fn test_single_character_config_default() {
