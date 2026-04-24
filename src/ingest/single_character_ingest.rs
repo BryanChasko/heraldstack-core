@@ -3,7 +3,7 @@
 //! Library module for single character ingestion functionality.
 //! CLI has been moved to src/bin/single_character_ingest.rs
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 // Re-export commonly used types for the API
 pub use crate::ingest::chunking_utils::chunk_entity_fields;
@@ -60,7 +60,7 @@ pub struct ProcessingResult {
 /// Returns a `ProcessingResult` with processing statistics and status.
 pub fn process_character(
     _character_data: &serde_json::Value,
-    _output_dir: &PathBuf,
+    _output_dir: &Path,
     _config: &SingleCharacterConfig,
 ) -> Result<ProcessingResult, Box<dyn std::error::Error>> {
     // TODO: Implement the actual processing logic by extracting it from the original main function
